@@ -1,0 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wdth,wght@99.3,300&display=swap');
+@font-face {
+    font-family: 'Blonde Personal Use';
+    src: url('BlondePersonalUse-BoldItalic.woff2') format('woff2'),
+        url('BlondePersonalUse-BoldItalic.woff') format('woff');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
