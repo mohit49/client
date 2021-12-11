@@ -7,8 +7,12 @@ import Footer from "./ui-elements/footer/footer";
 import Login from "./pages/login";
 import Register from "./pages/register";
 import MyAccount from "./pages/my-account";
+import { useSelector } from "react-redux";
+
 
 function App() {
+  const loginCheck = useSelector(state => state.islogged)
+
   return (
     <div className="App">
  <Router>

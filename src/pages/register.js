@@ -1,10 +1,12 @@
 import React, { useState,useEffect } from "react";
+import { useHistory } from "react-router";
 import Axios from "axios";
 import MainWrapper from "../ui-elements/section/Section";
 import {Heading} from "../ui-elements/page-heading/page-heading";
 import styled from "styled-components";
 import { ButtonOutline,ButtonFill } from "../ui-elements/button/site-button";
-
+import {useDispatch, useSelector} from "react-redux";
+import { islogin } from "../actions";
 import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -76,6 +78,8 @@ span {
 `
 
 export default function Register() {
+  const dispatch = useDispatch();
+  const history = useHistory();
   const [startDate, setStartDate] = useState(new Date());
   const [responceState, responceChange] = useState({
     sucessClass:'',
@@ -152,7 +156,18 @@ const submitHandler = (e) => {
   e.preventDefault();
   if((!errors.userName && !errors.fullName && !errors.gender && !errors.email && !errors.password && !errors.birthDate) &&  (forminput.userName.length > 0 && forminput.fullName.length > 0 && forminput.gender.length > 0 && forminput.email.length > 0 && forminput.password.length > 0 && startDate.toString().length > 0) ) {
   
-  Axios.post('https://talkntype.com/server/register',{
+  Axios.post('http://talkntype.com/server/register',{
+		method: 'HEAD',
+		mode: 'no-cors',
+		headers: {
+			'Access-Control-Allow-Origin': '*',
+			Accept: 'application/json',
+			'Content-Type': 'application/json',
+		},
+		withCredentials: true,
+		credentials: 'same-origin',
+		crossdomain: true,
+	},{
       userName : forminput.userName,
       fullName : forminput.fullName,
       gender : forminput.gender,
@@ -160,7 +175,7 @@ const submitHandler = (e) => {
       password : forminput.password,
       birthDate : startDate,
   }).then((response)=>{
-     if(response.data.message === 'phoneExist') {
+     if(response.data.message === 'userAlreadyExist') {
       return responceChange({ sucessClass:'warning',
       message: 'Sorry this Phone number is already in Use' });
       
@@ -170,8 +185,11 @@ const submitHandler = (e) => {
          message: 'Sorry this email is already in Use' })
       }
       else if(response.statusText === 'OK') {
+        history.push("/my-account");
+        dispatch(islogin());
           return responceChange({ sucessClass:'sucess',
-         message: 'Sucessfully Registered' })
+         message: 'Sucessfully Registered' });
+        
 
       }
   });
@@ -219,7 +237,7 @@ else {
           <label>Gender </label>
           <select name='gender'   onChange={handleChange}>
             <option value='male'>Male</option>
-            <option value='male'>female</option>
+            <option value='female'>female</option>
             </select>
             {errors.gender && (
                 <span className="error-hide">Max length more then 3</span>
