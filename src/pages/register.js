@@ -6,7 +6,7 @@ import {Heading} from "../ui-elements/page-heading/page-heading";
 import styled from "styled-components";
 import { ButtonOutline,ButtonFill } from "../ui-elements/button/site-button";
 import {useDispatch, useSelector} from "react-redux";
-import { islogin } from "../actions";
+import { islogin, userdet } from "../actions";
 import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -157,17 +157,6 @@ const submitHandler = (e) => {
   if((!errors.userName && !errors.fullName && !errors.gender && !errors.email && !errors.password && !errors.birthDate) &&  (forminput.userName.length > 0 && forminput.fullName.length > 0 && forminput.gender.length > 0 && forminput.email.length > 0 && forminput.password.length > 0 && startDate.toString().length > 0) ) {
   
   Axios.post('http://talkntype.com/server/register',{
-		method: 'HEAD',
-		mode: 'no-cors',
-		headers: {
-			'Access-Control-Allow-Origin': '*',
-			Accept: 'application/json',
-			'Content-Type': 'application/json',
-		},
-		withCredentials: true,
-		credentials: 'same-origin',
-		crossdomain: true,
-	},{
       userName : forminput.userName,
       fullName : forminput.fullName,
       gender : forminput.gender,
@@ -186,7 +175,11 @@ const submitHandler = (e) => {
       }
       else if(response.statusText === 'OK') {
         history.push("/my-account");
+        sessionStorage.setItem("loginStatus" , true);
         dispatch(islogin());
+        sessionStorage.setItem("loginUser" ,JSON.stringify(response.data.json));
+        dispatch(userdet(JSON.stringify(response.data.json)))
+       
           return responceChange({ sucessClass:'sucess',
          message: 'Sucessfully Registered' });
         

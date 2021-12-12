@@ -255,7 +255,7 @@ width:30%;
           </div>
         </AsideWrapper>
         <ChangePassword>
-        <Heading2>Edit Password</Heading2>
+        <Heading2>Change Password</Heading2>
         <div className='password-information'>
         
             <ul>

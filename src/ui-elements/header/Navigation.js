@@ -3,8 +3,15 @@ import styled from "styled-components";
 import MainWrapper from "../section/Section";
 import  {ButtonFill ,ButtonOutline} from "../button/site-button";
 import { Link } from 'react-router-dom';
+import { useSelector } from "react-redux";
 import '../../fontcss/logoFont.css';
 export default function Navigation() {
+
+  const userInformation = useSelector(state => state.isloggedinUserDet);
+  const loginCheck = useSelector(state => state.islogged);
+ 
+ 
+
     const Logo = styled.div`
     float:left;
     font-family: 'Blonde Personal Use';
@@ -15,8 +22,19 @@ export default function Navigation() {
 `
 const MenuCon = styled.ul`
 padding:0
+z-index:10;
 list-style:none;
 float:right;
+&.fixedClass {
+  position:absolute;
+  width:200px;
+  background:#ffffff;
+  padding:0;
+  margin:0;
+  list-style:none;
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+  margin-top:10px;
+}
 `
 const LI = styled.li`
  padding:0;
@@ -24,6 +42,24 @@ const LI = styled.li`
  margin:0px 10px;
  list-style:none;
  position:relative;
+ &.dropdownLinks {
+  width:100%;
+  
+  margin:0;
+  padding: 0;
+  
+   a {
+    border:none;
+     color:#333333;
+     cursor:pointer;
+     &:hover {
+      background: #8854d0;
+    color:#ffffff;
+    border-radius:0;
+    }
+     
+   }
+}
  a {
   border-radius:30px;
   outline:none;
@@ -74,15 +110,28 @@ const SearchIcon = styled.i`
     
     return (
         
-    <MainWrapper>
+    <MainWrapper className='mn-header'>
         <Logo>Talk&Type</Logo>
         <MenuCon>
           <LI>
 <INPUT type='text'  autocomplete="off" placeholder='Search with name or place'/>
 <SearchIcon></SearchIcon>
           </LI>
-          <LI><Link to='/login'>Login</Link></LI>
-          <LI><Link className='button-fill' to='/register'>Join Now</Link></LI>
+          {!loginCheck && <LI><Link to='/login'>Login</Link></LI>}
+          {!loginCheck && <LI><Link className='button-fill' to='/register'>Join Now</Link></LI>}
+          {loginCheck && <LI><Link to='/my-account'>  Hi {(userInformation ? JSON.parse( userInformation)[0].fullName: '')}</Link>
+          <MenuCon className='fixedClass'>
+          <LI className='dropdownLinks'>
+            <Link to='/my-account'>My Account</Link>
+          </LI>
+          <LI className='dropdownLinks'>
+            <Link>My Friends</Link>
+          </LI>
+          <LI className='dropdownLinks'>
+            <Link>Logout</Link>
+          </LI>
+          </MenuCon>
+          </LI>}
         </MenuCon>
     </MainWrapper>
     

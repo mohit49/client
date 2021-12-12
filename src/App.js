@@ -1,5 +1,5 @@
 
-import React from "react";
+import React ,{useEffect} from "react";
 import  {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 import Navigation from "./ui-elements/header/Navigation";
 import HomePage from "./pages/home";
@@ -7,12 +7,20 @@ import Footer from "./ui-elements/footer/footer";
 import Login from "./pages/login";
 import Register from "./pages/register";
 import MyAccount from "./pages/my-account";
-import { useSelector } from "react-redux";
-
-
+import {useDispatch, useSelector} from "react-redux";
+import { islogin, userdet } from "./actions";
 function App() {
-  const loginCheck = useSelector(state => state.islogged)
-
+const dispatch = useDispatch();
+// use Effect used here only to run one time with blank dependency to initial login status and storage if exist in session storage
+useEffect(() => {
+  const loginCheck = sessionStorage.getItem("loginStatus")
+  const loginDet = sessionStorage.getItem("loginUser")
+    if(loginCheck){
+      dispatch(islogin());
+      dispatch(userdet(loginDet));
+    }
+  }, [])
+  
   return (
     <div className="App">
  <Router>

@@ -9,6 +9,10 @@ margin: 0 auto;
 &.containerWrapper {
     margin-top:20px;
 }
+&.mn-header{
+    z-index:10;
+}
+
 
 `
 export default MainWrapper
