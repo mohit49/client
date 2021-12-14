@@ -178,6 +178,7 @@ const submitHandler = (e) => {
         sessionStorage.setItem("loginStatus" , true);
         dispatch(islogin());
         sessionStorage.setItem("loginUser" ,JSON.stringify(response.data.json));
+        sessionStorage.setItem("userImg" ,response.data.userImg);
         dispatch(userdet(JSON.stringify(response.data.json)))
        
           return responceChange({ sucessClass:'sucess',

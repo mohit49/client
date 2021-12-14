@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import styled from "styled-components";
 import MainWrapper from "../section/Section";
 import  {ButtonFill ,ButtonOutline} from "../button/site-button";
@@ -6,84 +6,87 @@ import { Link } from 'react-router-dom';
 import { useSelector } from "react-redux";
 import '../../fontcss/logoFont.css';
 export default function Navigation() {
-
+  const [initialClick , setClick] = useState(true);
   const userInformation = useSelector(state => state.isloggedinUserDet);
   const loginCheck = useSelector(state => state.islogged);
- 
- 
 
-    const Logo = styled.div`
+  const clickHandler = (()=> {
+    setClick(!initialClick);
+  })
+
+  //styled component
+  const Logo = styled.div`
     float:left;
     font-family: 'Blonde Personal Use';
     font-size: 60px;
     background: #8854d0;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-`
-const MenuCon = styled.ul`
-padding:0
-z-index:10;
-list-style:none;
-float:right;
-&.fixedClass {
-  position:absolute;
-  width:200px;
-  background:#ffffff;
-  padding:0;
-  margin:0;
-  list-style:none;
-  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
-  margin-top:10px;
-}
-`
-const LI = styled.li`
- padding:0;
- float:left;
- margin:0px 10px;
- list-style:none;
- position:relative;
- &.dropdownLinks {
-  width:100%;
-  
-  margin:0;
-  padding: 0;
-  
-   a {
+    `
+    const MenuCon = styled.ul`
+    padding:0
+    z-index:10;
+    list-style:none;
+    float:right;
+    &.fixedClass {
+    position:absolute;
+    width:200px;
+    background:#ffffff;
+    padding:0;
+    margin:0;
+    list-style:none;
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    margin-top:10px;
+    }
+    `
+    const LI = styled.li`
+    padding:0;
+    float:left;
+    margin:0px 10px;
+    list-style:none;
+    position:relative;
+    &.dropdownLinks {
+    width:100%;
+
+    margin:0;
+    padding: 0;
+
+      a {
+      border:none;
+        color:#333333;
+        cursor:pointer;
+        &:hover {
+        background: #8854d0;
+      color:#ffffff;
+      border-radius:0;
+      }
+        
+      }
+    }
+    a {
+    border-radius:30px;
+    outline:none;
     border:none;
-     color:#333333;
-     cursor:pointer;
-     &:hover {
-      background: #8854d0;
-    color:#ffffff;
-    border-radius:0;
+    display:block;
+    padding:9px 20px;
+    font-size:18px;
+    background:none;
+    border: 2px solid #8854d0;
+    font-family: 'Open Sans', sans-serif;
+    color:#8854d0;
+    cursor:pointer;
+    margin-top:5px;
+    text-decoration:none;
+    &:hover {
+        color:#ffffff;
+        background:#8854d0;
+      }
+      &.button-fill {
+        color:#ffffff;
+        background:#8854d0;
+      }
     }
-     
-   }
-}
- a {
-  border-radius:30px;
-  outline:none;
-  border:none;
-  display:block;
-  padding:9px 20px;
-  font-size:18px;
-  background:none;
-  border: 2px solid #8854d0;
-  font-family: 'Open Sans', sans-serif;
-  color:#8854d0;
-  cursor:pointer;
-  margin-top:5px;
-  text-decoration:none;
-  &:hover {
-      color:#ffffff;
-      background:#8854d0;
-    }
-    &.button-fill {
-      color:#ffffff;
-      background:#8854d0;
-    }
- }
-`
+    `
 const INPUT = styled.input`
 display:block;
 border-radius:20px;
@@ -119,8 +122,8 @@ const SearchIcon = styled.i`
           </LI>
           {!loginCheck && <LI><Link to='/login'>Login</Link></LI>}
           {!loginCheck && <LI><Link className='button-fill' to='/register'>Join Now</Link></LI>}
-          {loginCheck && <LI><Link to='/my-account'>  Hi {(userInformation ? JSON.parse( userInformation)[0].fullName: '')}</Link>
-          <MenuCon className='fixedClass'>
+          {loginCheck && <LI><Link to='/my-account' onClick={clickHandler}>  Hi {(userInformation ? JSON.parse( userInformation)[0].fullName: '')}</Link>
+          {!initialClick && <MenuCon className='fixedClass'>
           <LI className='dropdownLinks'>
             <Link to='/my-account'>My Account</Link>
           </LI>
@@ -130,7 +133,7 @@ const SearchIcon = styled.i`
           <LI className='dropdownLinks'>
             <Link>Logout</Link>
           </LI>
-          </MenuCon>
+          </MenuCon>}
           </LI>}
         </MenuCon>
     </MainWrapper>
