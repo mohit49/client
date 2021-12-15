@@ -122,7 +122,7 @@ const SearchIcon = styled.i`
           </LI>
           {!loginCheck && <LI><Link to='/login'>Login</Link></LI>}
           {!loginCheck && <LI><Link className='button-fill' to='/register'>Join Now</Link></LI>}
-          {loginCheck && <LI><Link to='/my-account' onClick={clickHandler}>  Hi {(userInformation ? JSON.parse( userInformation)[0].fullName: '')}</Link>
+          {loginCheck && <LI><Link to='/my-account' onClick={clickHandler}>  Hi {(userInformation ? JSON.parse( userInformation)[0].fullName : '')}</Link>
           {!initialClick && <MenuCon className='fixedClass'>
           <LI className='dropdownLinks'>
             <Link to='/my-account'>My Account</Link>

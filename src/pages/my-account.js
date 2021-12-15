@@ -3,9 +3,12 @@ import ImageUploading from 'react-images-uploading';
 import MainWrapper from "../ui-elements/section/Section";
 import {Heading2} from "../ui-elements/page-heading/page-heading";
 import Axios from "axios";
+import { useHistory } from "react-router";
+import Resizer from "react-image-file-resizer";
 import styled from "styled-components";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ButtonOutline,ButtonFill } from "../ui-elements/button/site-button";
+import { userdet } from "../actions";
 //import SelectionBox from "../component/SelectionBox/SelectionBox";
 // <SelectionBox></SelectionBox>
 
@@ -242,9 +245,14 @@ ul {
 `
 
 export default function MyAccount() {
+  const dispatch = useDispatch();
+  const [lodingState, setLodingState] = useState(false);
+  const history = useHistory();
+  const [uploadBtn, setUploadBtn] = useState(false);  
+  const [imageSaved, setImageSaved] = useState(false);
   const myaccountInfo = useSelector(state => state.isloggedinUserDet);
   const [editMode, setEditMode] = useState(false),
-        baseUrl = 'http://talkntype.com/',
+        baseUrl = 'http://talkntype.com/image/profile-pic/',
        
         [images, setImages] = useState([]),
         maxNumber = 1,
@@ -278,13 +286,39 @@ export default function MyAccount() {
           setsetChangeDetails({ ...changedDetails, [name]: value });
           console.log(changedDetails);
         },
-        onChangeImage = (imageList, addUpdateIndex) => {
+        resizeFile = (file) => 
+        
+        new Promise((resolve) => {
+          
+          Resizer.imageFileResizer(
+            file,
+            300,
+            300,
+            "JPEG",
+            100,
+            0,
+            (uri) => {
+              resolve(uri);
+            },
+            "file"
+          );
+        }),
+        onChangeImage = async(imageList, addUpdateIndex) => {
+          
           // data for submit
-          console.log(imageList, addUpdateIndex);
+          try {
+          const file = imageList[0].file;
+          const image = await resizeFile(file);
+          imageList[0].file = image;
+          
           setImages(imageList);
+        } catch (err) {
+          console.log(err);
+        }
         },
-        profileImageSubmit = () => {
 
+        profileImageSubmit = () => {
+          setLodingState(!lodingState);
           const userName = myaccountInfo ? JSON.parse(myaccountInfo)[0].userName :'';
           const formData = new FormData();
 
@@ -297,12 +331,48 @@ export default function MyAccount() {
             }
         };
           Axios.post('http://talkntype.com/server/upload', formData , config).then((response)=>{
+           
            if(response.statusText === 'OK') {
-            sessionStorage.setItem("userImg" ,response.data.path);
+            
+            sessionStorage.setItem("userImg" ,response.data.filename);
+            setLodingState(lodingState);
+            setImageSaved(!imageSaved)
+            setImages('');
+            setUploadBtn(uploadBtn);
+          
            }
         });
           
+        },
+        saveInformation = () => {
+          if(!errors.fullName && !errors.email) {
+            
+            Axios.post('http://talkntype.com/server/informationUpdate', {
+              userName: myaccountInfo ? JSON.parse(myaccountInfo)[0].userName:'',
+              fullName : changedDetails.fullName,
+              email: changedDetails.email
+          }).then((response)=>{
+            if(response.statusText === 'OK') {
+              setEditMode(!editMode);
+              let inforData = JSON.parse(sessionStorage.getItem('loginUser'))[0];
+             
+              if(response.data.json[0].fullName.length > 0) {
+                inforData.fullName = response.data.json[0].fullName;
+              }
+              if(response.data.json[0].email.length > 0) { 
+                inforData.email = response.data.json[0].email;
+              }
+
+              sessionStorage.setItem('loginUser', '[' + JSON.stringify(inforData)+ ']');
+              dispatch(userdet('[' + JSON.stringify(inforData) + ']'))
+              
+            }
+           });
+            
+          }
+          
         }
+       
 
 
 
@@ -316,19 +386,18 @@ export default function MyAccount() {
           <ChatCardUl>
             <ChatCardLi>
               <div className='card-container'>
-             
+             {lodingState &&<p> Saving Image</p>}
               <img className='pro-pic' src={images.length > 0 ? images[0]['data_url']: myaccountInfo ? baseUrl+ sessionStorage.getItem("userImg") :'k'} alt="" width="100" />
               <ImageUploading
         
         value={images}
         onChange={onChangeImage}
-        maxNumber={maxNumber}
+        maxNumber='1'
         dataURLKey="data_url"
       >
         {({
           imageList,
           onImageUpload,
-          onImageUpdate,
           onImageRemove,
           isDragging,
           dragProps,
@@ -340,17 +409,18 @@ export default function MyAccount() {
               <div key={index} className="image-item">
              
                 <div className="image-item__btn-wrapper">
-                  <ButtonFill onClick={profileImageSubmit}>Save</ButtonFill>
+                  {!imageSaved && <ButtonFill onClick={profileImageSubmit}>Save</ButtonFill>}
 
-                  <ButtonOutline onClick={() => onImageRemove(index)}>Remove</ButtonOutline>
+                
                 </div>
               </div>
             ))}
          
-          {images.length < 1 && <ButtonFill
+          {!uploadBtn   && <ButtonFill
               style={isDragging ? { color: 'red' } : undefined}
               onClick={onImageUpload}
               {...dragProps}
+              
             > 
               Upload Image
             </ButtonFill> }
@@ -389,7 +459,7 @@ export default function MyAccount() {
               <span onClick={()=> setEditMode(!editMode)}>{!editMode ? "Edit Profile" :'Cancel' } </span>
             </li>
            {editMode && <li className='edit-profile-link saveProfile'>
-              <span >Save Profile </span>
+              <span onClick={saveInformation}>Save Profile </span>
             </li>}
             </ul>
           </div>
