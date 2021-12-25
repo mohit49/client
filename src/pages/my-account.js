@@ -252,7 +252,7 @@ export default function MyAccount() {
   const [imageSaved, setImageSaved] = useState(false);
   const myaccountInfo = useSelector(state => state.isloggedinUserDet);
   const [editMode, setEditMode] = useState(false),
-        baseUrl = 'http://talkntype.com/image/profile-pic/',
+        baseUrl = 'https://freehostingshop.com/images/profile-pic/',
        
         [images, setImages] = useState([]),
         maxNumber = 1,
@@ -330,11 +330,11 @@ export default function MyAccount() {
                 'content-type': 'multipart/form-data'
             }
         };
-          Axios.post('http://talkntype.com/server/upload', formData , config).then((response)=>{
+          Axios.post('https://freehostingshop.com/upload', formData , config).then((response)=>{
            
            if(response.statusText === 'OK') {
             
-            sessionStorage.setItem("userImg" ,response.data.filename);
+            localStorage.setItem("userImg" ,response.data.filename);
             setLodingState(lodingState);
             setImageSaved(!imageSaved)
             setImages('');
@@ -347,14 +347,14 @@ export default function MyAccount() {
         saveInformation = () => {
           if(!errors.fullName && !errors.email) {
             
-            Axios.post('http://talkntype.com/server/informationUpdate', {
+            Axios.post('https://freehostingshop.com/informationUpdate', {
               userName: myaccountInfo ? JSON.parse(myaccountInfo)[0].userName:'',
               fullName : changedDetails.fullName,
               email: changedDetails.email
           }).then((response)=>{
             if(response.statusText === 'OK') {
               setEditMode(!editMode);
-              let inforData = JSON.parse(sessionStorage.getItem('loginUser'))[0];
+              let inforData = JSON.parse(localStorage.getItem('loginUser'))[0];
              
               if(response.data.json[0].fullName.length > 0) {
                 inforData.fullName = response.data.json[0].fullName;
@@ -363,7 +363,7 @@ export default function MyAccount() {
                 inforData.email = response.data.json[0].email;
               }
 
-              sessionStorage.setItem('loginUser', '[' + JSON.stringify(inforData)+ ']');
+              localStorage.setItem('loginUser', '[' + JSON.stringify(inforData)+ ']');
               dispatch(userdet('[' + JSON.stringify(inforData) + ']'))
               
             }
@@ -387,7 +387,7 @@ export default function MyAccount() {
             <ChatCardLi>
               <div className='card-container'>
              {lodingState &&<p> Saving Image</p>}
-              <img className='pro-pic' src={images.length > 0 ? images[0]['data_url']: myaccountInfo ? baseUrl+ sessionStorage.getItem("userImg") :'k'} alt="" width="100" />
+              <img className='pro-pic' src={images.length > 0 ? images[0]['data_url']: myaccountInfo ? baseUrl+ localStorage.getItem("userImg") :'k'} alt="" width="100" />
               <ImageUploading
         
         value={images}

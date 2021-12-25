@@ -7,9 +7,9 @@ import styled from "styled-components";
 import { ButtonOutline,ButtonFill } from "../ui-elements/button/site-button";
 import {useDispatch, useSelector} from "react-redux";
 import { islogin, userdet } from "../actions";
-import DatePicker from "react-datepicker";
 
-import "react-datepicker/dist/react-datepicker.css";
+
+
 //import SelectionBox from "../component/SelectionBox/SelectionBox";
 // <SelectionBox></SelectionBox>
 
@@ -80,7 +80,6 @@ span {
 export default function Register() {
   const dispatch = useDispatch();
   const history = useHistory();
-  const [startDate, setStartDate] = useState(new Date());
   const [responceState, responceChange] = useState({
     sucessClass:'',
     message: ''
@@ -154,15 +153,15 @@ function handleChange(e) {
 }
 const submitHandler = (e) => {
   e.preventDefault();
-  if((!errors.userName && !errors.fullName && !errors.gender && !errors.email && !errors.password && !errors.birthDate) &&  (forminput.userName.length > 0 && forminput.fullName.length > 0 && forminput.gender.length > 0 && forminput.email.length > 0 && forminput.password.length > 0 && startDate.toString().length > 0) ) {
+  if((!errors.userName && !errors.fullName && !errors.gender && !errors.email && !errors.password && !errors.birthDate) &&  (forminput.userName.length > 0 && forminput.fullName.length > 0 && forminput.gender.length > 0 && forminput.email.length > 0 && forminput.password.length > 0 && forminput.age.length > 0) ) {
   
-  Axios.post('http://talkntype.com/server/register',{
+  Axios.post('https://freehostingshop.com/register',{
       userName : forminput.userName,
       fullName : forminput.fullName,
       gender : forminput.gender,
       email : forminput.email,
       password : forminput.password,
-      birthDate : startDate,
+      birthDate : forminput.age,
   }).then((response)=>{
      if(response.data.message === 'userAlreadyExist') {
       return responceChange({ sucessClass:'warning',
@@ -175,10 +174,10 @@ const submitHandler = (e) => {
       }
       else if(response.statusText === 'OK') {
         history.push("/my-account");
-        sessionStorage.setItem("loginStatus" , true);
+        localStorage.setItem("loginStatus" , true);
         dispatch(islogin());
-        sessionStorage.setItem("loginUser" ,JSON.stringify(response.data.json));
-        sessionStorage.setItem("userImg" ,response.data.userImg);
+        localStorage.setItem("loginUser" ,JSON.stringify(response.data.json));
+        localStorage.setItem("userImg" ,response.data.userImg);
         dispatch(userdet(JSON.stringify(response.data.json)))
        
           return responceChange({ sucessClass:'sucess',
@@ -239,7 +238,10 @@ else {
         </RegInputCon>
         <RegInputCon>
         <label>Birth Date </label>
-        <DatePicker  value={startDate} name='birthDate' selected={startDate} onChange={(date) => setStartDate(date)} />
+        <input onChange={handleChange} value={forminput.age} name='age' type='number'/>
+          {errors.password && (
+                <span className="error-hide">age should be number</span>
+              )}
         </RegInputCon>
         <RegInputCon>
           <label>Password</label>

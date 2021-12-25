@@ -6,37 +6,36 @@ import CutcallImg from '../../assets/cut-call.png'
 import CamOffImg from '../../assets/cam-off.png'
 import CamOffMic from '../../assets/mic-off.png'
 import RightArr from '../../assets/right-arrow.png'
-export default function VideoChatBox() {
-    const VideoContainer = styled.div`
-    display:flex;
-    width:100%;
-    margin-top:20px;
-    height:500px;
-    flex-diraction:column;
-    justify-content:space-between;
-  `
-    const VideoFrame = styled.div`
-    display:flex;
-    width:65%;
-    border:2px #8854d0 solid;
-    border-radius:30px;
-    background:#fff;
-    justify-content:space-between;
-    position: relative;
-  `
-  const ButtonUl = styled.ul`
+const VideoContainer = styled.div`
+display:flex;
+width:100%;
+margin-top:20px;
+height:500px;
+flex-diraction:column;
+justify-content:space-between;
+`
+const VideoFrame = styled.div`
+display:flex;
+width:65%;
+border:2px #8854d0 solid;
+border-radius:30px;
+background:#fff;
+justify-content:space-between;
+position: relative;
+`
+const ButtonUl = styled.ul`
 
-  position:absolute;
-  bottom: 0;
-  left:50%;
-  margin-left:-150px;
-  width:300px;
-  height:70px;
-  list-style:none;
-  padding:0;
+position:absolute;
+bottom: 0;
+left:50%;
+margin-left:-150px;
+width:300px;
+height:70px;
+list-style:none;
+padding:0;
 
-  text-align:center;
-  
+text-align:center;
+
 `
 const ButtonLi = styled.li`
 display:inline-block;
@@ -52,9 +51,9 @@ text-align:center;
 height:80px;
 cursor:pointer;
 img {
-    width: 60%;
-    text-align: center;
-    margin-top: 16px;
+width: 60%;
+text-align: center;
+margin-top: 16px;
 }
 
 `
@@ -67,9 +66,9 @@ text-align:center;
 height:60px;
 cursor:pointer;
 img {
-    width: 50%;
-    text-align: center;
-    margin-top: 16px;
+width: 50%;
+text-align: center;
+margin-top: 16px;
 }
 
 `
@@ -83,9 +82,9 @@ text-align:center;
 height:60px;
 cursor:pointer;
 img {
-    width: 50%;
-    text-align: center;
-    margin-top: 16px;
+width: 50%;
+text-align: center;
+margin-top: 16px;
 }
 
 `
@@ -139,10 +138,12 @@ top:10px;
 curser:pointer;
 text-align:center;
 img {
-    width:30px;
+width:30px;
 
 }
 `
+export default function VideoChatBox() {
+
 
 
     return (

@@ -1,10 +1,10 @@
 
-  const isloggedinUserDet = ( state = '', action) => {
+  const isloggedinUserDet = ( state ='', action) => {
     switch(action.type) {
       case 'userDetails':
         return state = action.payload;
       default:
-        return state =''
+        return state 
     }
   }
   export default isloggedinUserDet;

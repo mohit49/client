@@ -3,15 +3,11 @@
 import React from "react";
 import styled from "styled-components";
 
-
-
-
-export default function SelectionBox() {
-    const SelectionBoxUl = styled.ul`
+const SelectionBoxUl = styled.ul`
    
-    padding:0;
-    margin:0;
-    list-style:none;
+padding:0;
+margin:0;
+list-style:none;
 `
 const SelectionBoxLi = styled.li`
 float:left;
@@ -23,6 +19,10 @@ font-size:16px;
 border-radius:30px;
 padding:10px 15px;
 `
+
+
+export default function SelectionBox() {
+
     return (
         
    

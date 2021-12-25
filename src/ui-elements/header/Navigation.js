@@ -1,18 +1,14 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import styled from "styled-components";
 import MainWrapper from "../section/Section";
-import  {ButtonFill ,ButtonOutline} from "../button/site-button";
+import { useHistory } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { islogin, islogOut, userdet, onlineUsers2 } from "../../actions/index";
 import { Link } from 'react-router-dom';
-import { useSelector } from "react-redux";
-import '../../fontcss/logoFont.css';
-export default function Navigation() {
-  const [initialClick , setClick] = useState(true);
-  const userInformation = useSelector(state => state.isloggedinUserDet);
-  const loginCheck = useSelector(state => state.islogged);
+import io from "socket.io-client";
 
-  const clickHandler = (()=> {
-    setClick(!initialClick);
-  })
+import '../../fontcss/logoFont.css';
+
 
   //styled component
   const Logo = styled.div`
@@ -85,6 +81,15 @@ export default function Navigation() {
         color:#ffffff;
         background:#8854d0;
       }
+      &.nonBtnLink {
+        border:none;
+      }
+    }
+    .profile-img {
+      height:30px;
+      float:left;
+      margin-right:10px;
+      border-radius:50%;
     }
     `
 const INPUT = styled.input`
@@ -111,18 +116,84 @@ const SearchIcon = styled.i`
     background:  url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjBweCIgeT0iMHB4Igp3aWR0aD0iMjQiIGhlaWdodD0iMjQiCnZpZXdCb3g9IjAgMCAyNCAyNCIKc3R5bGU9IiBmaWxsOiMwMDAwMDA7Ij48cGF0aCBkPSJNIDkgMiBDIDUuMTQ1ODQ5NSAyIDIgNS4xNDU4NTI0IDIgOSBDIDIgMTIuODU0MTQ4IDUuMTQ1ODQ5NSAxNiA5IDE2IEMgMTAuNzQ3OTk5IDE2IDEyLjM0NTAwOSAxNS4zNDgwMjQgMTMuNTc0MjE5IDE0LjI4MTI1IEwgMTQgMTQuNzA3MDMxIEwgMTQgMTYgTCAyMCAyMiBMIDIyIDIwIEwgMTYgMTQgTCAxNC43MDcwMzEgMTQgTCAxNC4yODEyNSAxMy41NzQyMTkgQyAxNS4zNDgwMjQgMTIuMzQ1MDA5IDE2IDEwLjc0Nzk5NyAxNiA5IEMgMTYgNS4xNDU4NTI0IDEyLjg1NDE1MSAyIDkgMiB6IE0gOSA0IEMgMTEuNzczMjcxIDQgMTQgNi4yMjY3MzA3IDE0IDkgQyAxNCAxMS43NzMyNjkgMTEuNzczMjcxIDE0IDkgMTQgQyA2LjIyNjcyOSAxNCA0IDExLjc3MzI2OSA0IDkgQyA0IDYuMjI2NzMwNyA2LjIyNjcyOSA0IDkgNCB6Ij48L3BhdGg+PC9zdmc+') 50% 50% no-repeat;
     background-size: 100%; `
     
+
+export default function Navigation() {
+  const socket = io.connect("http://103.70.166.47:3000", {transports: ['websocket']});
+  const baseUrl = 'https://freehostingshop.com/images/profile-pic/';
+  const history = useHistory();
+  const dispatch = useDispatch();
+  const [initialClick , setClick] = useState(true);
+
+  const loginCheck = useSelector(state => state.islogged);
+  const userInformation = useSelector(state => state.isloggedinUserDet);
+  const onlineUsers = useSelector(state => state.onlineUsers);
+  const userImg = useSelector(state => state.userPic);
+  const clickHandler = (()=> {
+    setClick(!initialClick);
+  });
+  const logoutFunction = () =>{
+   
+    localStorage.removeItem('loginStatus');
+    localStorage.removeItem('loginUser');
+    dispatch(islogOut());
+    dispatch(userdet(''));
+    history.push("/");
+    socket.emit("user-offline", {
+      status:'offline',
+      userName: JSON.parse(userInformation)[0].userName 
+      
+    });
+  };
+  // use Effect used here only to run one time with blank dependency to initial login status and storage if exist in session storage
+useEffect(() => {
+  const loginChecks = localStorage.getItem("loginStatus")
+  const loginDet = localStorage.getItem("loginUser")
+    if(loginChecks && !loginCheck){
+      dispatch(islogin());
+      dispatch(userdet(loginDet));
+    }
+  }, [loginCheck]);
+  useEffect(() => {
+    if(userInformation) {
+    
+    socket.emit("user-online", {
+            status: 'online',
+            userName: JSON.parse(userInformation)[0].userName 
+          });
+       
+        }
+    }, [userInformation]);
+
+    
+
+  useEffect(() => {
+    socket.on(
+      "online-users",
+      (data2) => {
+       dispatch(onlineUsers2(data2));
+       
+      }
+    );
+  }, []);
+
+
     return (
         
     <MainWrapper className='mn-header'>
-        <Logo>Talk&Type</Logo>
+        <Logo>Talk&Type </Logo>
+       
         <MenuCon>
           <LI>
+        
 <INPUT type='text'  autocomplete="off" placeholder='Search with name or place'/>
 <SearchIcon></SearchIcon>
           </LI>
+          <LI>
+          <Link to='/' className='nonBtnLink'>Home</Link>
+          </LI>
           {!loginCheck && <LI><Link to='/login'>Login</Link></LI>}
           {!loginCheck && <LI><Link className='button-fill' to='/register'>Join Now</Link></LI>}
-          {loginCheck && <LI><Link to='/my-account' onClick={clickHandler}>  Hi {(userInformation ? JSON.parse( userInformation)[0].fullName : '')}</Link>
+          {loginCheck && <LI><Link  onClick={clickHandler}> <img className='profile-img' src={baseUrl + (localStorage.getItem('userImg') || userImg)}/>  Hi {(userInformation ? JSON.parse( userInformation)[0].fullName : '')}</Link>
           {!initialClick && <MenuCon className='fixedClass'>
           <LI className='dropdownLinks'>
             <Link to='/my-account'>My Account</Link>
@@ -131,7 +202,7 @@ const SearchIcon = styled.i`
             <Link>My Friends</Link>
           </LI>
           <LI className='dropdownLinks'>
-            <Link>Logout</Link>
+            <Link onClick={logoutFunction}>Logout</Link>
           </LI>
           </MenuCon>}
           </LI>}
