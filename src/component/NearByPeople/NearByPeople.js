@@ -102,37 +102,28 @@ display:block;
 `
 export default function NearbyPeople() {
     const dispatch = useDispatch();
+    const [onlineUser, setOnlineUsers] = useState([]);
     const userInformation = useSelector(state => state.isloggedinUserDet);
-    const  [onlineClients, setonlinClient] = useState([]);
-    const socket = io.connect("http://103.70.166.47:3000", {transports: ['websocket']});
+    const socket = io.connect("//localhost:3001", {transports: ['websocket']});
     const history = useHistory();
-    const baseUrl = 'https://freehostingshop.com/images/profile-pic/';
-    const onlineUsers = useSelector(state => state.onlineUsers),
-    chatWith = (e) => {
+    const baseUrl = '//localhost:3001/images/profile-pic';
+    const chatWith = (e) => {
         const name = e.target.dataset.userName;
         dispatch(chatPerson(name));
-         
-        
         history.push('/messages')
     };
+    useEffect(()=>{
+      if(socket) {
+        socket.on('online-users',(data)=>{
+          setOnlineUsers(data)
+        })
+      }
+      return () => {
+        socket.disconnect();
+      }
+    },[socket])
 
-    useEffect(() => {
-       socket.emit("fetchUserDetails", {
-            userNames: onlineUsers
-          });
-       
-        
-      }, [onlineUsers]);
-
-      useEffect(() => {
-        socket.on(
-          "user-details",
-          (data2) => {
-            setonlinClient(data2)
-           
-          }
-        );
-      }, []);
+   
 
 
 
@@ -148,7 +139,7 @@ export default function NearbyPeople() {
             <ChatCardUl>
        
 
-            {onlineClients && onlineClients.map((ele,key) => {
+            {onlineUser && onlineUser.map((ele,key) => {
                  
                return(
             ele.userName !== JSON.parse(userInformation)[0].userName &&  
@@ -160,7 +151,7 @@ export default function NearbyPeople() {
                       <div className='user-age'><span>{ele.birthDate}</span> yrs old</div>
                       {/*<div className='user-location'>Bahadurgarh(haryana)</div>*/}
                       <div className='user-button'><ButtonFill>View Profile</ButtonFill></div>
-                      <div className='user-button' ><ButtonOutline onClick={chatWith} data-user-name={ele.userName}>Send Message</ButtonOutline></div>
+                      <div className='user-button' ><ButtonOutline onClick={chatWith} data-user-name={ele.username}>Send Message</ButtonOutline></div>
                   </div>
 
               </ChatCardLi>)

@@ -59,6 +59,10 @@ margin:0px;
 flex-wrap: wrap;
 background: #eee;
 font-family: 'Open Sans', sans-serif;
+h4 {
+    margin:0;
+    padding:0;
+}
 ul {
     padding:20px;
     margin:0;
@@ -135,6 +139,7 @@ padding:10px;
     padding:0;
     max-height:500px;
     overflow-y:scroll;
+
     ul {
         display: flex;
         flex-direction: column;
@@ -183,75 +188,74 @@ padding:10px;
 export default function Messages() {
  
     
-    const socket = io.connect("http://103.70.166.47:3000", {transports: ['websocket']});
-    const baseUrl = 'https://freehostingshop.com/images/profile-pic/';
-    const history = useHistory();
-    const loginChecks = localStorage.getItem("loginStatus")
+    const socket = io.connect("//localhost:3001", {transports: ['websocket']});
+    const baseUrl = '//localhost:3001/images/profile-pic/';
+    const [chatUser , setChatUser] = useState();
+    const [sendMsg, setSendMsg] = useState({
+        userName:'',
+        reciversName:'',
+        textMsg:''
+    });
     const userInformation = useSelector(state => state.isloggedinUserDet);
-    const crntCht = useSelector(state => state.chatinPerson);
-    const [msgState, setmsgState] = useState('');
-    const [currentchat, setCurrentchat] = useState('');
-    const [msgList, setMsgList] = useState([]);
-    const [connection, setNewConnection] = useState({
-        senderId:'',
-        receiverId:'',
-        text:''
-    }),
-    createRoom =(e) => {
-        const reciversName = e.target.dataset.userName;
-        const sendersName = JSON.parse(userInformation)[0].userName;
-        let room = Date.now() + Math.random();
-        room = room.toString().replace(".","_");
-        socket.emit('createRoom', {room: room, userId:sendersName, withUserId:reciversName});
-        
-    },
-    
-
-    sendMessage = (e) => {
-        e.preventDefault();
-        setNewConnection({
-            senderId: JSON.parse(userInformation)[0].userName,
-            room: JSON.parse(userInformation)[0].userName + '-' + currentchat,
-            receiverId: currentchat,
-            text: msgState,
+    const [inboxList, setInboxList] = useState('');
+    const setMsgs=((event)=>{
+        var reciversName = event.target.dataset.userName;
+        setChatUser(reciversName);
+    });
+    const sendMessage = ((event) => {
+        event.preventDefault();
+        const textMsg = event.target.children[0].value;
+        const msgTo = chatUser;
+        const msgFrom = JSON.parse(userInformation)[0].userName;
+        setSendMsg({
+            userName: msgFrom,
+            reciversName: msgTo,
+            textMsg: textMsg
         });
-        
-    },
-    handleMsgChange = (e) => {
-        setmsgState(e.target.value);
-    }
-    useEffect(() => {
-        if(crntCht) {
-            Axios.post('https://freehostingshop.com/chatPerson', {
-                userName : crntCht
-            }).then((response)=>{
+       
+
+    });
+
+    useEffect(()=>{
+        if(sendMsg.userName.length > 0 && socket) {
+            socket?.emit('sendMsg',  sendMsg )
+        }
+        return () => {
+            socket.disconnect()
+          
+        }
+      },[sendMsg]);
+
+   
+
+    useEffect(()=>{
+        if(userInformation && socket) {
+          const dataArr = JSON.parse(userInformation);
+          socket?.emit('getChatList',  dataArr )
+        }
+        return () => {
+            socket.disconnect()
+          
+        }
+      },[userInformation]);
+
+      useEffect(()=>{
+        if(socket) {
+            socket.on('reciveChatList',(data)=>{
+                setInboxList((prev) => [...prev , data] )
+              });
+               socket.on('msg-recived',(data)=>{
+                setInboxList((prev) =>  [...prev , data.user[0] ])
+               // setInboxList(data.user[0])
+               console.log(data)
+              });
+            }
            
-           if(response.statusText === 'OK') {
-            setMsgList((prev)=>[...prev, response.data.details[0]])
-           }
-        });
-        }
-    },[crntCht]);
-    useEffect(() => {
-        
-        if(connection.text) {
-            socket.emit("send_msg_to_person", connection);
-        }
-    }, [connection])
-    useEffect(() => {
+      
+      },[socket]);
 
-        //socket.on("recived_msg",(userDetails) => {
-         //   console.log(userDetails)
-            //setMsgList((prev)=> [...prev, userDetails])
-        //});
-        socket.on('invite', function(data) {
-            socket.emit("joinRoom",data)
-        });
-    }, [socket]);
-    
-    
-  
-    
+      
+
     return (
       <>  
       <MainWrapper>
@@ -261,20 +265,22 @@ export default function Messages() {
             <input type='search' placeholder='search meassage'/>
            </div>
            <ul className='messages-inbox'>
-               {console.log(msgList)}
-           {msgList.length>0 && msgList.map((ele,index)=>{
+               
+           {(inboxList && inboxList.length > 0)  && inboxList.map((ele,index)=>{
                return (
-                <li key={index} onClick={createRoom} data-user-name={ele.userName}>
+                <li key={index} onClick={setMsgs} data-user-name={ele.userName}>
                     <span className='user-pic'><img src={baseUrl + ele.profilePic}/></span>
                     <span className="user-messages"><strong>{ele.fullName}</strong>
                     <p>{ele.message} </p></span>
                 </li>
                )
-           })}
+           })
+        }
              
            </ul>
        </ChatList>
        <ChatContainer>
+           <h4>Chat With : {chatUser}</h4>
            <ul>
                <li><p><span className='sender-pic'></span> <span className='sender-message'> It is a long established fact that a reader will </span></p></li>
                <li className='reciver-con'><p><span className='sender-pic'></span> <span className='sender-message'> It is a long established fact that a reader will </span></p></li>
@@ -289,7 +295,7 @@ export default function Messages() {
            </ul>
            <MessageSender>
                <form onSubmit={sendMessage}>
-               <input onChange={handleMsgChange}  value={msgState} placeholder='Type your message here' type='text'/>
+               <input   placeholder='Type your message here' type='text'/>
                <button  type='submit'>send</button>
                </form>
            </MessageSender>

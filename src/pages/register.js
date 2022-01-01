@@ -155,7 +155,7 @@ const submitHandler = (e) => {
   e.preventDefault();
   if((!errors.userName && !errors.fullName && !errors.gender && !errors.email && !errors.password && !errors.birthDate) &&  (forminput.userName.length > 0 && forminput.fullName.length > 0 && forminput.gender.length > 0 && forminput.email.length > 0 && forminput.password.length > 0 && forminput.age.length > 0) ) {
   
-  Axios.post('https://freehostingshop.com/register',{
+  Axios.post('//localhost:3001/register',{
       userName : forminput.userName,
       fullName : forminput.fullName,
       gender : forminput.gender,

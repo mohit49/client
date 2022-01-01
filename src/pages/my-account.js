@@ -252,7 +252,7 @@ export default function MyAccount() {
   const [imageSaved, setImageSaved] = useState(false);
   const myaccountInfo = useSelector(state => state.isloggedinUserDet);
   const [editMode, setEditMode] = useState(false),
-        baseUrl = 'https://freehostingshop.com/images/profile-pic/',
+        baseUrl = '//localhost:3001/images/profile-pic/',
        
         [images, setImages] = useState([]),
         maxNumber = 1,
@@ -330,7 +330,7 @@ export default function MyAccount() {
                 'content-type': 'multipart/form-data'
             }
         };
-          Axios.post('https://freehostingshop.com/upload', formData , config).then((response)=>{
+          Axios.post('//localhost:3001/upload', formData , config).then((response)=>{
            
            if(response.statusText === 'OK') {
             
@@ -347,7 +347,7 @@ export default function MyAccount() {
         saveInformation = () => {
           if(!errors.fullName && !errors.email) {
             
-            Axios.post('https://freehostingshop.com/informationUpdate', {
+            Axios.post('//localhost:3001/informationUpdate', {
               userName: myaccountInfo ? JSON.parse(myaccountInfo)[0].userName:'',
               fullName : changedDetails.fullName,
               email: changedDetails.email

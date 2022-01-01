@@ -3,9 +3,8 @@ import styled from "styled-components";
 import MainWrapper from "../section/Section";
 import { useHistory } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { islogin, islogOut, userdet, onlineUsers2 } from "../../actions/index";
+import { islogin, islogOut, userdet, userImg } from "../../actions/index";
 import { Link } from 'react-router-dom';
-import io from "socket.io-client";
 
 import '../../fontcss/logoFont.css';
 
@@ -118,16 +117,14 @@ const SearchIcon = styled.i`
     
 
 export default function Navigation() {
-  const socket = io.connect("http://103.70.166.47:3000", {transports: ['websocket']});
-  const baseUrl = 'https://freehostingshop.com/images/profile-pic/';
+  const baseUrl = '//localhost:3001/images/profile-pic/';
   const history = useHistory();
   const dispatch = useDispatch();
   const [initialClick , setClick] = useState(true);
-
   const loginCheck = useSelector(state => state.islogged);
   const userInformation = useSelector(state => state.isloggedinUserDet);
   const onlineUsers = useSelector(state => state.onlineUsers);
-  const userImg = useSelector(state => state.userPic);
+  const userPic = useSelector(state => state.userPic);
   const clickHandler = (()=> {
     setClick(!initialClick);
   });
@@ -138,45 +135,18 @@ export default function Navigation() {
     dispatch(islogOut());
     dispatch(userdet(''));
     history.push("/");
-    socket.emit("user-offline", {
-      status:'offline',
-      userName: JSON.parse(userInformation)[0].userName 
-      
-    });
   };
   // use Effect used here only to run one time with blank dependency to initial login status and storage if exist in session storage
 useEffect(() => {
   const loginChecks = localStorage.getItem("loginStatus")
   const loginDet = localStorage.getItem("loginUser")
+  const proPic = localStorage.getItem("userImg")
     if(loginChecks && !loginCheck){
       dispatch(islogin());
       dispatch(userdet(loginDet));
+      dispatch(userImg(proPic));
     }
   }, [loginCheck]);
-  useEffect(() => {
-    if(userInformation) {
-    
-    socket.emit("user-online", {
-            status: 'online',
-            userName: JSON.parse(userInformation)[0].userName 
-          });
-       
-        }
-    }, [userInformation]);
-
-    
-
-  useEffect(() => {
-    socket.on(
-      "online-users",
-      (data2) => {
-       dispatch(onlineUsers2(data2));
-       
-      }
-    );
-  }, []);
-
-
     return (
         
     <MainWrapper className='mn-header'>
@@ -193,7 +163,7 @@ useEffect(() => {
           </LI>
           {!loginCheck && <LI><Link to='/login'>Login</Link></LI>}
           {!loginCheck && <LI><Link className='button-fill' to='/register'>Join Now</Link></LI>}
-          {loginCheck && <LI><Link  onClick={clickHandler}> <img className='profile-img' src={baseUrl + (localStorage.getItem('userImg') || userImg)}/>  Hi {(userInformation ? JSON.parse( userInformation)[0].fullName : '')}</Link>
+          {loginCheck && <LI><Link  onClick={clickHandler}> <img className='profile-img' src={baseUrl + (localStorage.getItem('userImg') || userPic)}/>  Hi {(userInformation ? JSON.parse( userInformation)[0].fullName : '')}</Link>
           {!initialClick && <MenuCon className='fixedClass'>
           <LI className='dropdownLinks'>
             <Link to='/my-account'>My Account</Link>

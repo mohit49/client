@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React,{useEffect, useState} from "react";
 import Axios from "axios";
 import { useHistory } from "react-router";
 import MainWrapper from "../ui-elements/section/Section";
@@ -7,6 +7,7 @@ import styled from "styled-components";
 import {useDispatch, useSelector} from "react-redux";
 import { islogin, userdet, userImg } from "../actions";
 import { ButtonOutline,ButtonFill } from "../ui-elements/button/site-button";
+import { io } from "socket.io-client";
 //import SelectionBox from "../component/SelectionBox/SelectionBox";
 // <SelectionBox></SelectionBox>
 const LoginForm = styled.form`
@@ -61,6 +62,7 @@ export default function Login() {
   const history = useHistory();
   const [lodingState, setLodingStaet] = useState(false);
   const dispatch = useDispatch();
+  const [socket, setSocket] = useState(null)
   const [formDetails, setFormDetails] = useState({
     userNameEmail: '',
     password:''
@@ -91,7 +93,7 @@ export default function Login() {
   submitLogin = (e) => {
     e.preventDefault();
     setLodingStaet(!lodingState);
-    Axios.post('https://freehostingshop.com/authentication', {
+    Axios.post('//localhost:3001/authentication', {
       userName : formDetails.userNameEmail,
       password : formDetails.password,
     }).then((response)=>{
